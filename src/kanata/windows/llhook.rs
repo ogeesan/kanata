@@ -10,7 +10,7 @@ use crate::kanata::*;
 impl Kanata {
     /// Initialize the callback that is passed to the Windows low level hook to receive key events
     /// and run the native_windows_gui event loop.
-    pub fn event_loop(_kanata: Arc<Mutex<Self>>, tx: Sender<KeyEvent>) -> Result<()> {
+    pub fn event_loop(kanata: Arc<Mutex<Self>>, tx: Sender<KeyEvent>) -> Result<()> {
         // Display debug and panic output when launched from a terminal.
         unsafe {
             use winapi::um::wincon::*;
@@ -33,7 +33,7 @@ impl Kanata {
                 _ => return false,
             };
 
-            check_for_exit(&key_event);
+            check_for_exit(&key_event, &kanata);
             let oscode = OsCode::from(input_event.code);
             if !MAPPED_KEYS.lock().contains(&oscode) {
                 return false;

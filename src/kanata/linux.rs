@@ -45,7 +45,7 @@ impl Kanata {
                     }
                 };
 
-                check_for_exit(&key_event);
+                check_for_exit(&key_event, &kanata);
 
                 // Check if this keycode is mapped in the configuration. If it hasn't been mapped, send
                 // it immediately.

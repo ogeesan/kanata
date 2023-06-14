@@ -1583,7 +1583,7 @@ fn run_multi_cmd(cmds: Vec<Vec<String>>) {
 
 /// Checks if kanata should exit based on the fixed key combination of:
 /// Lctl+Spc+Esc
-fn check_for_exit(event: &KeyEvent) {
+fn check_for_exit(event: &KeyEvent, kanata: &Mutex<Kanata>) {
     static IS_LCL_PRESSED: AtomicBool = AtomicBool::new(false);
     static IS_SPC_PRESSED: AtomicBool = AtomicBool::new(false);
     static IS_ESC_PRESSED: AtomicBool = AtomicBool::new(false);
@@ -1599,6 +1599,17 @@ fn check_for_exit(event: &KeyEvent) {
         _ => return,
     }
     const EXIT_MSG: &str = "pressed LControl+Space+Escape, exiting";
+    {
+        use std::time::SystemTime;
+        let k = kanata.lock();
+        let crash_time = SystemTime::UNIX_EPOCH.duration_since(SystemTime::now()).unwrap().as_secs();
+        let mut exit_log = std::fs::File::open(format!("kanata_manual_kill_{}", crash_time)).unwrap();
+        writeln!(exit_log, "cur keys: {:#?}", k.cur_keys).unwrap();
+        writeln!(exit_log, "prev keys: {:#?}", k.prev_keys).unwrap();
+        writeln!(exit_log, "layout states: {:#?}", k.layout.b().states).unwrap();
+        writeln!(exit_log, "layout waiting: {:#?}", k.layout.b().waiting).unwrap();
+        writeln!(exit_log, "layout last state tracker: {:#?}", k.layout.b().last_press_tracker).unwrap();
+    }
     if IS_ESC_PRESSED.load(SeqCst) && IS_SPC_PRESSED.load(SeqCst) && IS_LCL_PRESSED.load(SeqCst) {
         #[cfg(not(target_os = "linux"))]
         {

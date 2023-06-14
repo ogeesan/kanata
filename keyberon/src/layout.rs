@@ -801,7 +801,7 @@ impl Queued {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct LastPressTracker {
     pub coord: KCoord,
     pub tap_hold_timeout: u16,
